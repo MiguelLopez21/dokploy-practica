@@ -1,6 +1,5 @@
-// Este archivo es el que se modifica en la Fase 7 para probar el despliegue continuo.
 module.exports = {
-  version: '1.0.0',
-  mensaje: '¡Aplicación desplegada con Dokploy!',
-  deploy: 'Despliegue inicial desde Git',
+  version: '2.0.0',
+  mensaje: '¡Actualización automática con Dokploy!',
+  deploy: 'Git Push to Deploy',
 };
