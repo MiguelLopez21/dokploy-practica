@@ -1,0 +1,20 @@
+# MinIO: almacenamiento compatible con S3 para los respaldos de Dokploy (Fase 6.4).
+# Se ejecuta en la misma VM, FUERA de Dokploy, con:  docker compose up -d
+# Versión fija: es la última de MinIO Community con consola web completa.
+services:
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: minio-backups
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minio_quindio
+      - MINIO_ROOT_PASSWORD=minio_quindio_2026
+    ports:
+      - "9000:9000"   # API S3 (la usa Dokploy)
+      - "9001:9001"   # Consola web
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+
+volumes:
+  minio-data:

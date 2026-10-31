@@ -1,0 +1,73 @@
+# Fase 5 - Aplicación multi-servicio para Dokploy (Docker Compose)
+# Servicios: app (Node), mongodb, phpmyadmin y db-service (MySQL)
+services:
+  # Aplicación de ejemplo (servidor HTTP mínimo; la imagen node por sí sola no se queda corriendo)
+  app:
+    image: node:20-alpine
+    container_name: compose-webapp
+    command:
+      - node
+      - -e
+      - "require('http').createServer((req,res)=>{res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({servicio:'compose-webapp',plataforma:'Dokploy Docker Compose',fecha:new Date().toISOString()}))}).listen(3000,'0.0.0.0')"
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      - ../files/app-data:/app/data
+    networks:
+      - compose-net
+    restart: unless-stopped
+
+  # Base de datos MongoDB
+  mongodb:
+    image: mongo:7
+    container_name: compose-mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin_compose
+      - MONGO_INITDB_ROOT_PASSWORD=mongo_compose_2026
+      - MONGO_INITDB_DATABASE=compose_db
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - compose-net
+    restart: unless-stopped
+
+  # phpMyAdmin para gestión de MySQL
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: compose-phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=db-service
+      - PMA_PORT=3306
+    depends_on:
+      - db-service
+    networks:
+      - compose-net
+    restart: unless-stopped
+
+  # Base de datos MySQL
+  db-service:
+    image: mysql:8.0
+    container_name: compose-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_compose_2026
+      - MYSQL_DATABASE=compose_db
+      - MYSQL_USER=admin_compose
+      - MYSQL_PASSWORD=compose_pass_2026
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - compose-net
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  mysql-data:
+
+networks:
+  compose-net:
+    driver: bridge
